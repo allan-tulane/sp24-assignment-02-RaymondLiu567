@@ -46,16 +46,44 @@ def pad(x,y):
 
 
 def subquadratic_multiply(x, y):
-    ### TODO
-    pass
-    ###
+  # Convert BinaryNumber objects to integer values
+  x_val = x.decimal_val
+  y_val = y.decimal_val
 
+  # Base case for recursion
+  if x_val < 10 or y_val < 10:  # can be adjusted to a higher base case for efficiency
+      return BinaryNumber(x_val * y_val)
 
+  # Calculate the size of the numbers.
+  n = max(len(x.binary_vec), len(y.binary_vec))
+  m = n // 2
+
+  # Split x and y into two halves
+  xL, xR = split_number(x.binary_vec)
+  yL, yR = split_number(y.binary_vec)
+
+  # Recursive calls for the three products
+  z0 = subquadratic_multiply(xR, yR)
+  z2 = subquadratic_multiply(xL, yL)
+
+  # Compute (xL + xR)(yL + yR)
+  sum_xL_xR = binary2int(list(map(lambda a, b: str(int(a) + int(b)), xL.binary_vec, xR.binary_vec)))
+  sum_yL_yR = binary2int(list(map(lambda a, b: str(int(a) + int(b)), yL.binary_vec, yR.binary_vec)))
+  z1 = subquadratic_multiply(sum_xL_xR, sum_yL_yR)
+
+  # Subtract z2 and z0 from the product (xL + xR)(yL + yR)
+  z1 = BinaryNumber(z1.decimal_val - z2.decimal_val - z0.decimal_val)
+
+  # Final computation
+  return BinaryNumber((z2.decimal_val << (2 * m)) + (z1.decimal_val << m) + z0.decimal_val)
 
 def time_multiply(x, y, f):
-    start = time.time()
-    # multiply two numbers x, y using function f
-    return (time.time() - start)*1000
+  start = time.time()
+  # multiply two numbers x, y using function f
+  result = f(BinaryNumber(x), BinaryNumber(y))
+  end = time.time()
+  return (end - start) * 1000, result
+
 
     
     
